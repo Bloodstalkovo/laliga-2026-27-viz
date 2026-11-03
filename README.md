@@ -2,6 +2,9 @@
 
 一个用 **Vega-Lite** 做的交互图表。不需要安装依赖，双击 `index.html` 就能在浏览器里打开。
 
+- 在线地址：<https://bloodstalkovo.github.io/laliga-2026-27-viz/>
+- GitHub 仓库：<https://github.com/Bloodstalkovo/laliga-2026-27-viz>
+
 ## 数据说明
 
 - 统计截止：**2026-11-03**，2026-27 西甲第 11 轮。
