@@ -100,6 +100,8 @@ document.querySelector("#metric").addEventListener("change", e => {
 
 ## 部署到 GitHub Pages
 
+### 方式一：网页上传（最快）
+
 1. 在 GitHub 新建一个空仓库，比如 `laliga-2026-27-viz`；
 2. 把 `index.html`、`data.csv`、`README.md` 上传到仓库根目录；
 3. 进入仓库 **Settings → Pages**；
@@ -109,6 +111,17 @@ document.querySelector("#metric").addEventListener("change", e => {
 ```text
 https://你的用户名.github.io/laliga-2026-27-viz/
 ```
+
+### 方式二：命令行
+
+先建好空仓库，然后在 PowerShell 里运行：
+
+```powershell
+cd D:\cs\viz-demo
+.\deploy.ps1 -RepoUrl "https://github.com/你的用户名/laliga-2026-27-viz.git"
+```
+
+如果弹出 GitHub 登录窗口，登录你自己的账号即可。push 成功后，再去 **Settings → Pages** 选择 `main` / `/root`。
 
 ## 数据来源
 
