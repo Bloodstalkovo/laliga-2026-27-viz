@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026-27 西甲前 11 轮：场均进球、射门与控球</title>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px 24px;
+      background: #f7f7f5;
+      color: #1f2933;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    }
+    .wrap { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 24px; line-height: 1.35; margin: 0 0 8px; }
+    .sub { color: #52606d; line-height: 1.7; margin: 0 0 20px; }
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 14px;
+      font-size: 14px;
+      color: #323f4b;
+    }
+    select {
+      padding: 7px 10px;
+      border: 1px solid #cbd2d9;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 14px;
+      color: #1f2933;
+    }
+    #vis { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 16px rgba(0,0,0,.06); }
+    .note { color: #7b8794; font-size: 12px; line-height: 1.7; margin: 12px 2px 0; }
+    .note a { color: #52606d; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>2026-27 西甲前 11 轮：场均进球、射门与控球</h1>
+    <p class="sub">选择指标，鼠标移到柱子上查看具体数据。为公平比较，进球和射门使用场均数据；控球率为场均百分比。</p>
+
+    <div class="controls">
+      <label for="metric">选择指标：</label>
+      <select id="metric">
+        <option value="goals_pg">场均进球</option>
+        <option value="shots_pg">场均射门</option>
+        <option value="possession">控球率（%）</option>
+      </select>
+    </div>
+
+    <div id="vis"></div>
+
+    <p class="note">
+      数据截至 2026-11-03（第 11 轮）。进球与场次来自
+      <a href="https://www.laliga.com/en-TN/laliga-easports/standing" target="_blank" rel="noopener">La Liga 官方积分榜</a>，
+      射门与控球率来自
+      <a href="https://as.com/resultados/futbol/primera/2026_2027/ranking/equipos/disparos/" target="_blank" rel="noopener">AS.com 球队数据</a>。
+      Girona 2026-27 赛季不在西甲，已用皇家贝蒂斯替换；毕尔巴鄂竞技少赛一场，所有总量已换算为场均。
+    </p>
+  </div>
+
+  <script>
+    // 2026-27 La Liga, after 11 rounds (Athletic: 10 matches)
+    const data = [
+      { team: "巴塞罗那",     goals_pg: 4.18, shots_pg: 15.55, possession: 69.8, played: 11, goals: 46, shots: 171 },
+      { team: "皇家马德里",   goals_pg: 2.55, shots_pg: 13.18, possession: 51.7, played: 11, goals: 28, shots: 145 },
+      { team: "马德里竞技",   goals_pg: 2.00, shots_pg: 12.18, possession: 58.6, played: 11, goals: 22, shots: 134 },
+      { team: "皇家贝蒂斯",   goals_pg: 1.64, shots_pg: 12.64, possession: 51.9, played: 11, goals: 18, shots: 139 },
+      { team: "毕尔巴鄂竞技", goals_pg: 1.40, shots_pg: 11.60, possession: 53.4, played: 10, goals: 14, shots: 116 },
+      { team: "皇家社会",     goals_pg: 1.82, shots_pg: 10.00, possession: 51.5, played: 11, goals: 20, shots: 110 }
+    ];
+
+    const spec = {
+      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+      data: { values: data },
+      width: 640,
+      height: 320,
+      params: [
+        { name: "metric", value: "goals_pg" },
+        {
+          name: "highlight",
+          select: { type: "point", on: "pointerover", clear: "pointerout" }
+        }
+      ],
+      transform: [
+        { calculate: "datum[metric]", as: "value" }
+      ],
+      mark: { type: "bar", cornerRadiusEnd: 4 },
+      encoding: {
+        y: {
+          field: "team",
+          type: "nominal",
+          sort: "-x",
+          axis: { title: null, labelFontSize: 13 }
+        },
+        x: {
+          field: "value",
+          type: "quantitative",
+          axis: { title: "数值", grid: true }
+        },
+        color: {
+          condition: {
+            param: "highlight",
+            field: "team",
+            empty: false
+          },
+          value: "#9ecae1",
+          legend: null
+        },
+        tooltip: [
+          { field: "team", type: "nominal", title: "球队" },
+          { field: "value", type: "quantitative", title: "当前指标", format: ".2f" },
+          { field: "played", type: "quantitative", title: "已赛" },
+          { field: "goals", type: "quantitative", title: "总进球" },
+          { field: "shots", type: "quantitative", title: "总射门" },
+          { field: "possession", type: "quantitative", title: "控球率", format: ".1f" }
+        ]
+      },
+      config: {
+        view: { stroke: null },
+        axis: { labelColor: "#52606d", titleColor: "#52606d" },
+        legend: { disable: true }
+      }
+    };
+
+    let view;
+
+    vegaEmbed("#vis", spec, { actions: false }).then((result) => {
+      view = result.view;
+    }).catch(console.error);
+
+    document.querySelector("#metric").addEventListener("change", (event) => {
+      if (!view) return;
+      view.signal("metric", event.target.value).run();
+    });
+  </script>
+</body>
+</html>
